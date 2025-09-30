@@ -97,3 +97,7 @@ InitTestScene*.unity*
 
 # Auto-generated scenes by play mode tests
 /[Aa]ssets/[Ii]nit[Tt]est[Ss]cene*.unity*
+Assets/Agents/Providers/OpenAIProviderConfig.asset
+Assets/Agents/Providers/OpenAIProviderConfig.asset.meta
+Assets/Agents/Providers/QWENProviderConfig.asset
+Assets/Agents/Providers/QWENProviderConfig.asset.meta
