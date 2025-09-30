@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: qwen-max-2025-QWENModelConfig
   m_EditorClassIdentifier: 
   modelName: qwen-max
-  provider: 1
+  provider: 0
   modelVersion: qwen-max-latest
   temperature: 0.7
   maxTokens: 8192

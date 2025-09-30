@@ -13,10 +13,10 @@ MonoBehaviour:
   m_Name: qwen2.5-14b-instructQWENModelConfig
   m_EditorClassIdentifier: 
   modelName: qwen2.5-14b-instruct
-  provider: 1
+  provider: 0
   modelVersion: qwen2.5-14b-instruct
   temperature: 0.7
-  maxTokens: 32768
+  maxTokens: 8192
   topP: 0.9
   presencePenalty: 0
   frequencyPenalty: 0
