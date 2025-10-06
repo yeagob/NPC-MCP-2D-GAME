@@ -1,5 +1,4 @@
 using System.Collections.Generic;
-using ChatSystem.Characters;
 using UnityEngine;
 using UnityEngine.Serialization;
 using UnityEngine.UI;

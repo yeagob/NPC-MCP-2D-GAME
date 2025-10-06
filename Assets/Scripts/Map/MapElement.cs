@@ -158,13 +158,6 @@
             
             public abstract bool CanBeTraversed();
             
-            protected virtual void OnDestroy()
-            {
-                if (_mapSystem != null)
-                {
-                    _mapSystem.UnregisterElement(this);
-                }
-            }
             
             protected virtual void OnDrawGizmosSelected()
             {

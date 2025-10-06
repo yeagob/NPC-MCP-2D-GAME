@@ -173,6 +173,7 @@ public class ActionMenuView : MonoBehaviour
 
     public void ShowItemsPanel(InventorySystem.Enums.ItemPanelMode mode, System.Collections.Generic.List<InventorySystem.Enums.ItemType> availableItems, System.Action<InventorySystem.Enums.ItemType> onItemSelected)
     {
+        //'mode' innecesario!!!
         if (_itemsPanel != null)
         {
             _itemsPanel.ShowPanel(mode, availableItems, onItemSelected);
