@@ -121,7 +121,7 @@ namespace MapSystem
                 return;
             }
 
-            string elementId = element.Context.elementId;
+            string elementId = element.Id.ToString();
 
             if (_registeredElements.ContainsKey(elementId))
             {

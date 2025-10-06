@@ -6084,7 +6084,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   <AvatarImage>k__BackingField: {fileID: 2524056469002939336, guid: d4cc4bd8d10fd1140a1ad3316c095bfb, type: 3}
   _myName: Santiago
-  _actionPoints: 7
+  _actionPoints: 3
   _characterElement: {fileID: 6984647213550770964}
   _mapSystem: {fileID: 751119948}
   _gridSystem: {fileID: 751119947}
@@ -6106,12 +6106,15 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   keySlot:
     itemId: 
+    itemElement: {fileID: 0}
     itemType: 0
   moneySlot:
     itemId: 
+    itemElement: {fileID: 0}
     itemType: 0
   appleSlot:
     itemId: 
+    itemElement: {fileID: 0}
     itemType: 0
 --- !u!224 &7497120897740141902
 RectTransform:
