@@ -1,6 +1,7 @@
 using UnityEngine;
 using InventorySystem.Enums;
 using InventorySystem.Models;
+using MapSystem.Elements;
 
 namespace InventorySystem.Components
 {
@@ -23,14 +24,14 @@ namespace InventorySystem.Components
             return GetSlot(itemType).IsValid();
         }
 
-        public bool AddItem(string itemId, ItemType itemType)
+        public bool AddItem(string itemId, ItemType itemType, ItemElement item)
         {
             if (HasItem(itemType))
             {
                 return false;
             }
 
-            SetSlot(itemType, new InventoryItem(itemId, itemType));
+            SetSlot(itemType, new InventoryItem(itemId, itemType, item));
             return true;
         }
 
