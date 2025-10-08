@@ -23,6 +23,15 @@ namespace Grid.Models.Grid
         public bool showGridNumbers = false;
         public bool showGridGizmos = true;
 
+        public static int GridWidth; 
+        public static int GridHeight;
+
+        public GridConfiguration()
+        {
+            GridWidth = gridWidth;
+            GridHeight = gridHeight;
+        }
+        
         public Vector2 GetCellSize()
         {
             return new Vector2(cellWidth, cellHeight);

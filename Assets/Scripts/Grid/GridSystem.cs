@@ -182,6 +182,11 @@ namespace Grid
             return Mathf.RoundToInt(distance);
             
         }
+
+        public static int CoordToIndex(int row, int col)
+        {
+            return row * GridConfiguration.GridWidth + col;
+        }
     }
         
 }

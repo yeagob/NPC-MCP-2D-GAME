@@ -5,6 +5,7 @@ using ChatSystem.Characters;
 using ChatSystem.Models.Tools;
 using ChatSystem.Services.Logging;
 using ChatSystem.Services.Tools.Interfaces;
+using Grid;
 using MapSystem.Enums;
 
 namespace ChatSystem.Services.Tools
@@ -76,14 +77,16 @@ namespace ChatSystem.Services.Tools
                 int row = (int)args["row"];
                 int col = (int)args["col"];
 
+                int index = GridSystem.CoordToIndex(row, col);
+                
                 if (_characterAgent.Teleport(row, col))
                 {
-                    UniversalLogUI.Instance.Log($"{_characterAgent.name} Move to {row}, {col}");
+                    UniversalLogUI.Instance.Log($"{_characterAgent.name} Move to {index}");
                     return CreateSuccessResponse(toolCall.id, $"Tu posición ahora es: {row},{col}");
                 }
                 else
                 {
-                    UniversalLogUI.Instance.Log($"{_characterAgent.name} ERROR Move to {row}, {col}");
+                    UniversalLogUI.Instance.Log($"{_characterAgent.name} ERROR Move to {index}");
 
                     return CreateErrorResponse(toolCall.id, $"No puedes moverte a: {row}, {col}");
                 }

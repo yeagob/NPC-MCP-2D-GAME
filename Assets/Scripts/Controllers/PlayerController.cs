@@ -232,7 +232,7 @@ public class PlayerController : TurnCharacter
             return;
         }
 
-        bool added = _inventoryComponent.AddItem(itemElement.Id.ToString(), itemType);
+        bool added = _inventoryComponent.AddItem(itemElement.Id.ToString(), itemType, itemElement);
 
         if (!added)
         {
@@ -267,7 +267,7 @@ public class PlayerController : TurnCharacter
         }
 
         GridCell currentCell = _characterElement.CurrentGridCell;
-        CreateItemInCell(currentCell, item.itemId, itemType);
+        DropItemInCell(currentCell, item.itemElement);
 
         ConsumeActionPoint();
         Debug.Log($"Dropped {itemType}");
@@ -364,30 +364,21 @@ public class PlayerController : TurnCharacter
         return null;
     }
 
-    private void CreateItemInCell(GridCell cell, string itemId, ItemType itemType)
-    {
-        GameObject itemPrefab = Resources.Load<GameObject>("Prefabs/ItemElement");
-
-        if (itemPrefab == null)
-        {
-            Debug.LogError("ItemElement prefab not found in Resources/Prefabs");
-            return;
-        }
-
-        Vector3 cellWorldPosition = _gridSystem.GetCellCenterWorldPosition(cell);
-        GameObject itemObject = Instantiate(itemPrefab, cellWorldPosition, Quaternion.identity);
-        
-        ItemElement itemElement = itemObject.GetComponent<ItemElement>();
-
+    private void DropItemInCell(GridCell cell, ItemElement itemElement)
+    { 
         if (itemElement == null)
         {
-            Destroy(itemObject);
             Debug.LogError("ItemElement component not found on instantiated prefab");
             return;
         }
 
-        itemElement.SetItemType(itemType);
-        _mapSystem.RegisterElement(itemElement as MapElement);
+        itemElement.gameObject.SetActive(true);
+        
+        if (itemElement is MapElement mapElement)
+        {
+            _mapSystem.RegisterElement(mapElement);
+            _mapSystem.MoveElement(mapElement, cell);
+        }
     }
 
     private void ProcessMouseClick()
@@ -536,11 +527,11 @@ public class PlayerController : TurnCharacter
             return;
         }
 
-        bool added = targetInventory.AddItem(item.itemId, _selectedItemTypeForGive);
+        bool added = targetInventory.AddItem(item.itemId, _selectedItemTypeForGive, item.itemElement);
 
         if (!added)
         {
-            _inventoryComponent.AddItem(item.itemId, _selectedItemTypeForGive);
+            _inventoryComponent.AddItem(item.itemId, _selectedItemTypeForGive, item.itemElement);
             Debug.LogWarning($"Failed to add {_selectedItemTypeForGive} to target inventory - rolled back");
             return;
         }

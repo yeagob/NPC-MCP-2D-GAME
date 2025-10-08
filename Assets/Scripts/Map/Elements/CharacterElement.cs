@@ -5,33 +5,50 @@ using MapSystem.Models.Vision;
 using MapSystem.Vision;
 using MapSystem.Navigation;
 using InventorySystem.Components;
+using UnityEngine.Serialization;
 
 namespace MapSystem.Elements
 {
     public class CharacterElement : MapElement
     {
         [Header("Character Properties")]
-        [SerializeField] private float movementSpeed ;
-        [SerializeField] private bool canMove ;
-        [SerializeField] private bool isPlayerControlled ;
-        [SerializeField] private ViewDirection facingDirection;
+        [SerializeField] 
+        private float _movementSpeed ;
+        
+        [SerializeField] 
+        private bool _canMove;
+        
+        [SerializeField] 
+        private bool _isPlayerControlled ;
+        
+        [SerializeField] 
+        private ViewDirection _facingDirection;
         
         [Header("Character Stats")]
-        [SerializeField] private int healthPoints = 100;
-        [SerializeField] private int maxHealthPoints = 100;
-        [SerializeField] private int experiencePoints = 0;
+        [SerializeField] 
+        private int _healthPoints = 100;
+        
+        [SerializeField] 
+        private int _maxHealthPoints = 100;
+        
+        [SerializeField] 
+        private int _experiencePoints = 0;
+        
+        [SerializeField] 
+        private bool _canBeTraversed;
 
-        public float MovementSpeed => movementSpeed;
-        public bool CanMove => canMove;
-        public bool IsPlayerControlled => isPlayerControlled;
-        public ViewDirection FacingDirection => facingDirection;
-        public int HealthPoints => healthPoints;
-        public int MaxHealthPoints => maxHealthPoints;
-        public int ExperiencePoints => experiencePoints;
+        public float MovementSpeed => _movementSpeed;
+        public bool CanMove => _canMove;
+        public bool IsPlayerControlled => _isPlayerControlled;
+        public ViewDirection FacingDirection => _facingDirection;
+        public int HealthPoints => _healthPoints;
+        public int MaxHealthPoints => _maxHealthPoints;
+        public int ExperiencePoints => _experiencePoints;
         
         private bool isMoving = false;
-        private InventoryComponent inventoryComponent;
         
+        private InventoryComponent inventoryComponent;
+
         protected override void InitializeMapElement()
         {
             elementType = MapElementType.Character;
@@ -80,12 +97,11 @@ namespace MapSystem.Elements
         
         public override bool CanBeTraversed()
         {
-            return false;
+            return _canBeTraversed;
         }
         
         public bool TryMoveTo(int row, int col)
         {
-            Debug.Log($"Trying to move to row {row}, col {col}");
 
             GridCell targetCell = _mapSystem.GetGridCell(row, col);
             return TryMoveToCell(targetCell);
@@ -93,12 +109,11 @@ namespace MapSystem.Elements
         
         public bool TryMoveToCell(GridCell targetCell)
         {
-            if (!canMove || isMoving || _mapSystem == null)
+            if (!_canMove || isMoving || _mapSystem == null)
             {
                 return false;
             }
             
-            Debug.Log("Trying to move to cell");
             if (!_mapSystem.IsNavigationViable(this, targetCell))
             {
                 context.AddInteraction($"Failed to move to {targetCell} - not traversable");
@@ -133,11 +148,11 @@ namespace MapSystem.Elements
         
         private void UpdateFacingDirection(bool left)
         {
-            facingDirection = !left ? ViewDirection.Right : ViewDirection.Left;
+            _facingDirection = !left ? ViewDirection.Right : ViewDirection.Left;
             
-            elementSprite.flipX = facingDirection == ViewDirection.Right;
+            elementSprite.flipX = _facingDirection == ViewDirection.Right;
             
-            context.SetProperty("facingDirection", facingDirection);
+            context.SetProperty("facingDirection", _facingDirection);
         }
         
         public VisionResult LookInDirection(ViewDirection direction)
@@ -152,7 +167,7 @@ namespace MapSystem.Elements
         
         public VisionResult LookForward()
         {
-            return LookInDirection(facingDirection);
+            return LookInDirection(_facingDirection);
         }
         
         public VisionResult ScanSurroundings()
@@ -162,49 +177,49 @@ namespace MapSystem.Elements
         
         public void SetMovementSpeed(float newSpeed)
         {
-            movementSpeed = Mathf.Max(0.1f, newSpeed);
-            context.SetProperty("movementSpeed", movementSpeed);
-            context.AddInteraction($"Movement speed changed to {movementSpeed}");
+            _movementSpeed = Mathf.Max(0.1f, newSpeed);
+            context.SetProperty("movementSpeed", _movementSpeed);
+            context.AddInteraction($"Movement speed changed to {_movementSpeed}");
         }
         
         public void SetCanMove(bool canMoveValue)
         {
-            canMove = canMoveValue;
-            context.SetProperty("canMove", canMove);
-            context.AddInteraction($"Movement ability changed to {canMove}");
+            _canMove = canMoveValue;
+            context.SetProperty("canMove", _canMove);
+            context.AddInteraction($"Movement ability changed to {_canMove}");
         }
         
         public void SetFacingDirection(ViewDirection direction)
         {
-            facingDirection = direction;
-            context.SetProperty("facingDirection", facingDirection);
-            context.AddInteraction($"Facing direction changed to {facingDirection}");
+            _facingDirection = direction;
+            context.SetProperty("facingDirection", _facingDirection);
+            context.AddInteraction($"Facing direction changed to {_facingDirection}");
         }
         
         public void SetPlayerControlled(bool playerControlled)
         {
-            isPlayerControlled = playerControlled;
-            context.SetProperty("isPlayerControlled", isPlayerControlled);
-            context.AddInteraction($"Player control changed to {isPlayerControlled}");
+            _isPlayerControlled = playerControlled;
+            context.SetProperty("isPlayerControlled", _isPlayerControlled);
+            context.AddInteraction($"Player control changed to {_isPlayerControlled}");
         }
         
         public void ModifyHealth(int amount)
         {
-            int previousHealth = healthPoints;
-            healthPoints = Mathf.Clamp(healthPoints + amount, 0, maxHealthPoints);
+            int previousHealth = _healthPoints;
+            _healthPoints = Mathf.Clamp(_healthPoints + amount, 0, _maxHealthPoints);
             
-            context.SetProperty("healthPoints", healthPoints);
+            context.SetProperty("healthPoints", _healthPoints);
             
             if (amount > 0)
             {
-                context.AddInteraction($"Healed {amount} HP (was {previousHealth}, now {healthPoints})");
+                context.AddInteraction($"Healed {amount} HP (was {previousHealth}, now {_healthPoints})");
             }
             else if (amount < 0)
             {
-                context.AddInteraction($"Took {-amount} damage (was {previousHealth}, now {healthPoints})");
+                context.AddInteraction($"Took {-amount} damage (was {previousHealth}, now {_healthPoints})");
             }
             
-            if (healthPoints <= 0)
+            if (_healthPoints <= 0)
             {
                 OnCharacterDefeated();
             }
@@ -213,14 +228,14 @@ namespace MapSystem.Elements
         protected virtual void OnCharacterDefeated()
         {
             context.AddInteraction("Character was defeated");
-            canMove = false;
+            _canMove = false;
         }
         
         public void AddExperience(int experience)
         {
-            experiencePoints += experience;
-            context.SetProperty("experiencePoints", experiencePoints);
-            context.AddInteraction($"Gained {experience} experience (total: {experiencePoints})");
+            _experiencePoints += experience;
+            context.SetProperty("experiencePoints", _experiencePoints);
+            context.AddInteraction($"Gained {experience} experience (total: {_experiencePoints})");
         }
         
         public void UpdateInventoryContext()
@@ -235,7 +250,7 @@ namespace MapSystem.Elements
         {
             base.DrawVisionRadius();
             
-            Gizmos.color = isPlayerControlled ? Color.blue : Color.red;
+            Gizmos.color = _isPlayerControlled ? Color.blue : Color.red;
             Gizmos.DrawWireCube(transform.position, Vector3.one * 1.2f);
             
             DrawFacingDirection();
@@ -243,7 +258,7 @@ namespace MapSystem.Elements
         
         private void DrawFacingDirection()
         {
-            Vector3 directionVector = GetDirectionVector(facingDirection);
+            Vector3 directionVector = GetDirectionVector(_facingDirection);
             Gizmos.color = Color.yellow;
             Gizmos.DrawRay(transform.position, directionVector * 0.8f);
         }
@@ -260,18 +275,18 @@ namespace MapSystem.Elements
 
         public ViewDirection Flip()
         {
-            if (facingDirection == ViewDirection.Right)
+            if (_facingDirection == ViewDirection.Right)
             {
-                facingDirection = ViewDirection.Left;
+                _facingDirection = ViewDirection.Left;
             }
             else
             {
-                facingDirection = ViewDirection.Right;
+                _facingDirection = ViewDirection.Right;
             }
             
-            elementSprite.flipX = facingDirection == ViewDirection.Right;
+            elementSprite.flipX = _facingDirection == ViewDirection.Right;
             
-            return facingDirection;
+            return _facingDirection;
         }
 
         public void Listen(string message)

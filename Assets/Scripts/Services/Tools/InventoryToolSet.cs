@@ -119,7 +119,7 @@ namespace InventorySystem.Services.Tools
                     return CreateErrorResponse(toolCall.id, $"Already have {itemType} in inventory");
                 }
 
-                bool added = _inventoryComponent.AddItem(itemId, itemType);
+                bool added = _inventoryComponent.AddItem(itemId, itemType, itemElement);
                 
                 if (added)
                 {
@@ -234,7 +234,7 @@ namespace InventorySystem.Services.Tools
 
                 Models.InventoryItem item = _inventoryComponent.GetItem(itemType);
                 bool removed = _inventoryComponent.RemoveItem(itemType);
-                bool added = targetInventory.AddItem(item.itemId, itemType);
+                bool added = targetInventory.AddItem(item.itemId, itemType, item.itemElement);
                 
                 if (removed && added)
                 {
@@ -243,7 +243,7 @@ namespace InventorySystem.Services.Tools
 
                 if (removed && !added)
                 {
-                    _inventoryComponent.AddItem(item.itemId, itemType);
+                    _inventoryComponent.AddItem(item.itemId, itemType, item.itemElement);
                 }
 
                 return CreateErrorResponse(toolCall.id, $"Failed to transfer {itemType} to target character");

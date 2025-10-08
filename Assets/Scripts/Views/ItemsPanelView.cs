@@ -72,7 +72,7 @@ public class ItemsPanelView : MonoBehaviour
             return;
         }
 
-        button.interactable = isActive;
+        button.gameObject.SetActive(isActive);
     }
 
     private void OnItemButtonClicked(ItemType itemType)
