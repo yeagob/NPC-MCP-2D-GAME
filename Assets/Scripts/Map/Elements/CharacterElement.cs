@@ -5,6 +5,7 @@ using MapSystem.Models.Vision;
 using MapSystem.Vision;
 using MapSystem.Navigation;
 using InventorySystem.Components;
+using CombatSystem.Components;
 using UnityEngine.Serialization;
 
 namespace MapSystem.Elements
@@ -48,6 +49,7 @@ namespace MapSystem.Elements
         private bool isMoving = false;
         
         private InventoryComponent inventoryComponent;
+        private CombatComponent combatComponent;
 
         protected override void InitializeMapElement()
         {
@@ -59,6 +61,12 @@ namespace MapSystem.Elements
             if (inventoryComponent == null)
             {
                 inventoryComponent = gameObject.AddComponent<InventoryComponent>();
+            }
+            
+            combatComponent = GetComponent<CombatComponent>();
+            if (combatComponent == null)
+            {
+                combatComponent = gameObject.AddComponent<CombatComponent>();
             }
         }
         
