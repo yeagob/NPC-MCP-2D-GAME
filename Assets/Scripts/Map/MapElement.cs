@@ -128,6 +128,13 @@
                 }
             }
             
+            public virtual void SetElementType(MapElementType newType)
+            {
+                elementType = newType;
+                context.SetProperty("elementType", elementType);
+                context.AddInteraction($"Element type changed to {elementType}");
+            }
+            
             public virtual void AddInteraction(string interaction)
             {
                 context.AddInteraction(interaction);
