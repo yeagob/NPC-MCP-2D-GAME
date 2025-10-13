@@ -1,9 +1,10 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using ChatSystem.Characters;
+using ChatSystem.Services.Logging;
 using UnityEngine;
 using MapSystem.Elements;
-using Logging;
 
 namespace TurnSystem
 {
@@ -28,7 +29,7 @@ namespace TurnSystem
             }
             
             _activeCharacters.Add(character);
-            LoggingService.Info($"Character registered: {character.name}");
+            LoggingService.LogInfo($"Character registered: {character.name}");
         }
         
         public void UnregisterCharacter(CharacterElement character)
@@ -46,7 +47,7 @@ namespace TurnSystem
             }
             
             _activeCharacters.Remove(character);
-            LoggingService.Info($"Character unregistered: {character.name}");
+            LoggingService.LogInfo($"Character unregistered: {character.name}");
         }
         
         public void RemoveDeadCharacters()
@@ -102,7 +103,7 @@ namespace TurnSystem
         
         private async Task ExecuteCharacterTurn(CharacterElement character)
         {
-            LoggingService.Info($"Turn start: {character.name}");
+            LoggingService.LogInfo($"Turn start: {character.name}");
             
             if (character.IsPlayerControlled)
             {
@@ -113,13 +114,13 @@ namespace TurnSystem
                 await ExecuteNPCTurn(character);
             }
             
-            LoggingService.Info($"Turn end: {character.name}");
+            LoggingService.LogInfo($"Turn end: {character.name}");
         }
         
         private async Task ExecutePlayerTurn(CharacterElement character)
         {
-            PlayerSystem.Controllers.PlayerController playerController = 
-                character.GetComponent<PlayerSystem.Controllers.PlayerController>();
+            PlayerController playerController = 
+                character.GetComponent<PlayerController>();
             
             if (playerController != null)
             {
@@ -129,8 +130,8 @@ namespace TurnSystem
         
         private async Task ExecuteNPCTurn(CharacterElement character)
         {
-            Agents.CharacterAgent characterAgent = 
-                character.GetComponent<Agents.CharacterAgent>();
+            CharacterAgent characterAgent = 
+                character.GetComponent<CharacterAgent>();
             
             if (characterAgent != null)
             {
@@ -146,26 +147,6 @@ namespace TurnSystem
             {
                 _currentTurnIndex = 0;
             }
-        }
-        
-        public int GetActiveCharacterCount()
-        {
-            return _activeCharacters.Count;
-        }
-        
-        public CharacterElement GetCharacterAtIndex(int index)
-        {
-            if (index < 0 || index >= _activeCharacters.Count)
-            {
-                return null;
-            }
-            
-            return _activeCharacters[index];
-        }
-        
-        public List<CharacterElement> GetAllActiveCharacters()
-        {
-            return new List<CharacterElement>(_activeCharacters);
         }
     }
 }

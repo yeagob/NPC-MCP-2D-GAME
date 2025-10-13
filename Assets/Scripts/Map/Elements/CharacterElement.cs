@@ -219,7 +219,7 @@ namespace MapSystem.Elements
             int previousHealth = _healthPoints;
             _healthPoints = Mathf.Clamp(_healthPoints + amount, 0, _maxHealthPoints);
             
-            _lifebarImage.fillAmount = _healthPoints / _maxHealthPoints;
+            _lifebarImage.fillAmount = (float)_healthPoints / (float)_maxHealthPoints;
             
             context.SetProperty("healthPoints", _healthPoints);
             

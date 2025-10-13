@@ -21,9 +21,9 @@ using MapSystem.Enums;
 using MapSystem.Models.Map;
 using InventorySystem.Services.Tools;
 using InventorySystem.Components;
-using CombatSystem.Tools;
 using CombatSystem.Components;
 using CombatSystem.Models;
+using CombatSystem.Services.Tools;
 using TMPro;
 
 namespace ChatSystem.Characters
