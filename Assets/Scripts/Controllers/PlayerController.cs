@@ -12,6 +12,8 @@ using MapSystem.Elements;
 using MapSystem.Models.Map;
 using PlayerSystem.Configuration;
 using PlayerSystem.Enums;
+using CombatSystem.Components;
+using CombatSystem.Models;
 using TMPro;
 using UnityEngine;
 
@@ -52,6 +54,7 @@ public class PlayerController : TurnCharacter
     private PlayerActionState _currentActionState;
     private ItemType _selectedItemTypeForGive;
     private InventoryComponent _inventoryComponent;
+    private CombatComponent _combatComponent;
 
     public override void Initialize()
     {
@@ -72,6 +75,13 @@ public class PlayerController : TurnCharacter
         {
             Debug.LogError("InventoryComponent not found on CharacterElement");
         }
+
+        _combatComponent = _characterElement.GetComponent<CombatComponent>();
+
+        if (_combatComponent == null)
+        {
+            Debug.LogError("CombatComponent not found on CharacterElement");
+        }
     }
 
     public override async Task ExecuteTurn()
@@ -81,6 +91,11 @@ public class PlayerController : TurnCharacter
         _myTurn = true;
         ShowActions(true);
         HideDialog();
+
+        if (_combatComponent != null)
+        {
+            _combatComponent.ResetCombatContext();
+        }
 
         while (_currentActionPoints > 0 && _myTurn)
         {
@@ -447,13 +462,6 @@ public class PlayerController : TurnCharacter
             return;
         }
 
-        if (!IsTargetInRange(targetCharacter, PlayerActionConfiguration.AttackRange))
-        {
-            Debug.LogWarning("Target is out of attack range");
-            _currentActionState = PlayerActionState.None;
-            return;
-        }
-
         ExecuteAttack(targetCharacter);
         _currentActionState = PlayerActionState.None;
     }
@@ -492,14 +500,29 @@ public class PlayerController : TurnCharacter
 
     private void ExecuteAttack(CharacterElement target)
     {
-        int damage = PlayerActionConfiguration.AttackDamage;
-        
-        target.ModifyHealth(-damage);
-        
-        NotifyCharacterOfAttack(target, damage);
+        if (_combatComponent == null)
+        {
+            Debug.LogError("CombatComponent not found");
+            return;
+        }
+
+        AttackResult result = _combatComponent.Attack(target);
+
+        if (!result.success)
+        {
+            Debug.LogWarning($"Attack failed: {result.errorMessage}");
+            return;
+        }
+
         ConsumeActionPoint();
         
-        Debug.Log($"Player attacked {target.name} for {damage} damage");
+        string message = $"Player attacked {target.name} for {result.damageDealt} damage";
+        if (result.targetDied)
+        {
+            message += $" - {target.name} was defeated!";
+        }
+        
+        Debug.Log(message);
     }
 
     private void ExecuteGiveItem(CharacterElement target)
@@ -538,41 +561,6 @@ public class PlayerController : TurnCharacter
 
         ConsumeActionPoint();
         Debug.Log($"Gave {_selectedItemTypeForGive} to {target.name}");
-    }
-
-    private bool IsTargetInRange(CharacterElement target, int range)
-    {
-        GridCell currentCell = _characterElement.CurrentGridCell;
-        GridCell targetCell = target.CurrentGridCell;
-
-        int distance = _mapSystem.GetGridDistanceBetweenElements(_characterElement, target);
-        return distance <= range;
-    }
-
-    private void NotifyCharacterOfAttack(CharacterElement target, int damage)
-    {
-        CharacterAgent agent = target.GetComponent<CharacterAgent>();
-
-        if (agent == null)
-        {
-            return;
-        }
-
-        int currentHealth = target.HealthPoints;
-        string attackerName = _characterElement.name;
-
-        PromptConfig attackPrompt = ScriptableObject.CreateInstance<PromptConfig>();
-        attackPrompt.promptId = "combat-damage-received";
-        attackPrompt.promptName = "Combat";
-        attackPrompt.category = "";
-        attackPrompt.description = "Damage received in combat";
-        attackPrompt.enabled = true;
-        attackPrompt.priority = 10;
-        attackPrompt.version = "1.0";
-
-        attackPrompt.content = $"{attackerName} has attacked you for {damage} damage. Your current health: {currentHealth}";
-
-        agent.AddContextPrompt(attackPrompt);
     }
 
     private bool CanExecuteAction()
