@@ -1,14 +1,16 @@
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using ChatSystem.Characters;
+using ChatSystem.Models.Tools;
+using ChatSystem.Services.LLM;
+using ChatSystem.Services.Logging;
+using ChatSystem.Services.Tools.Interfaces;
 using MapSystem.Elements;
 using CombatSystem.Components;
 using CombatSystem.Models;
-using LLMSystem.Models.Tools;
-using LLMSystem.Services.Tools.Interfaces;
-using LLMSystem.Enums;
-using Agents;
-using Logging;
+using MapSystem;
+
 
 namespace CombatSystem.Tools
 {
@@ -33,52 +35,10 @@ namespace CombatSystem.Tools
             }
         }
         
-        public List<ToolConfiguration> GetAvailableTools()
-        {
-            List<ToolConfiguration> tools = new List<ToolConfiguration>
-            {
-                CreateAttackToolConfiguration()
-            };
-            
-            return tools;
-        }
         
-        private ToolConfiguration CreateAttackToolConfiguration()
+        public async Task<ToolResponse> ExecuteToolAsync(ToolCall toolCall)
         {
-            ToolConfiguration config = new ToolConfiguration
-            {
-                toolId = "attack",
-                toolName = "attack",
-                description = "Attack a nearby character. Target must be adjacent (1 cell or less) and you must be facing them.",
-                enabled = true
-            };
-            
-            Dictionary<string, object> parameters = new Dictionary<string, object>
-            {
-                { "type", "object" },
-                { 
-                    "properties", new Dictionary<string, object>
-                    {
-                        {
-                            "targetCharacterId", new Dictionary<string, object>
-                            {
-                                { "type", "string" },
-                                { "description", "The ID of the character to attack" }
-                            }
-                        }
-                    }
-                },
-                { "required", new List<string> { "targetCharacterId" } }
-            };
-            
-            config.parameters = parameters;
-            
-            return config;
-        }
-        
-        public async Task<ToolResponse> ExecuteToolAsync(ToolCall toolCall, ToolDebugContext debugContext)
-        {
-            LoggingService.ToolCall(toolCall.name, ParseArguments(toolCall.arguments));
+            LoggingService.LogToolCall(toolCall.name, ParseArguments(toolCall.arguments));
             
             ToolResponse response = toolCall.name switch
             {
@@ -86,7 +46,7 @@ namespace CombatSystem.Tools
                 _ => ToolResponse.Failure($"Unknown tool: {toolCall.name}")
             };
             
-            LoggingService.ToolResponse(toolCall.name, response);
+            LoggingService.LogToolResponse(toolCall.name, response);
             
             return response;
         }

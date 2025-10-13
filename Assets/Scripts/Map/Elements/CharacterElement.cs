@@ -2,11 +2,11 @@ using UnityEngine;
 using Grid.Models.Grid;
 using MapSystem.Enums;
 using MapSystem.Models.Vision;
-using MapSystem.Vision;
-using MapSystem.Navigation;
 using InventorySystem.Components;
 using CombatSystem.Components;
-using UnityEngine.Serialization;
+using MapSystem.Navigation;
+using MapSystem.Vision;
+using UnityEngine.UI;
 
 namespace MapSystem.Elements
 {
@@ -14,7 +14,7 @@ namespace MapSystem.Elements
     {
         [Header("Character Properties")]
         [SerializeField] 
-        private float _movementSpeed ;
+        private float _movementSpeed;
         
         [SerializeField] 
         private bool _canMove;
@@ -26,6 +26,9 @@ namespace MapSystem.Elements
         private ViewDirection _facingDirection;
         
         [Header("Character Stats")]
+        [SerializeField] 
+        private Image _lifebarImage ;
+
         [SerializeField] 
         private int _healthPoints = 100;
         
@@ -215,6 +218,8 @@ namespace MapSystem.Elements
         {
             int previousHealth = _healthPoints;
             _healthPoints = Mathf.Clamp(_healthPoints + amount, 0, _maxHealthPoints);
+            
+            _lifebarImage.fillAmount = _healthPoints / _maxHealthPoints;
             
             context.SetProperty("healthPoints", _healthPoints);
             
