@@ -21,6 +21,9 @@ using MapSystem.Enums;
 using MapSystem.Models.Map;
 using InventorySystem.Services.Tools;
 using InventorySystem.Components;
+using CombatSystem.Tools;
+using CombatSystem.Components;
+using CombatSystem.Models;
 using TMPro;
 
 namespace ChatSystem.Characters
@@ -64,7 +67,9 @@ namespace ChatSystem.Characters
         private IPersistenceService persistenceService;
         private IToolSet characterToolSet;
         private IToolSet inventoryToolSet;
+        private IToolSet combatToolSet;
         private InventoryComponent inventoryComponent;
+        private CombatComponent combatComponent;
         
         private Dictionary<ConextType, PromptConfig> _contextPrompt = new Dictionary<ConextType, PromptConfig>(); 
 
@@ -72,6 +77,7 @@ namespace ChatSystem.Characters
         {
             HideDialog();
             inventoryComponent = GetComponent<InventoryComponent>();
+            combatComponent = GetComponent<CombatComponent>();
             CreateCoreServices();
             CreateToolSets();
             CreateServices();
@@ -93,15 +99,19 @@ namespace ChatSystem.Characters
             {
                 UniversalLogUI.Instance.Log($"\\nAction Points: {missingPoints}");
                 
-                //Vision prompt
                 PromptConfig visionPromptConfig = CreateVisionPromptMap(map);
                 firstAgent.contextPrompts.Add(visionPromptConfig);
                 
-                //Inventory prompt
                 if (inventoryComponent != null)
                 {
                     PromptConfig inventoryPromptConfig = CreateInventoryPromptConfig();
                     firstAgent.contextPrompts.Add(inventoryPromptConfig);
+                }
+                
+                if (combatComponent != null)
+                {
+                    PromptConfig combatPromptConfig = CreateCombatPromptConfig();
+                    firstAgent.contextPrompts.Add(combatPromptConfig);
                 }
                 
                 LLMResponse response = await chatOrchestrator.ProcessUserMessageAsync(_characterElement.Id.ToString(), _initialMessage);
@@ -112,6 +122,11 @@ namespace ChatSystem.Characters
                 if (inventoryComponent != null)
                 {
                     firstAgent.contextPrompts.RemoveAll(p => p.promptId == "inventory-status");
+                }
+                if (combatComponent != null)
+                {
+                    firstAgent.contextPrompts.RemoveAll(p => p.promptId == "combat-status");
+                    combatComponent.ResetCombatContext();
                 }
                 HideDialog();
                 
@@ -141,6 +156,9 @@ namespace ChatSystem.Characters
             {
                 inventoryToolSet = new InventoryToolSet(this, _mapSystem);
                 agentExecutor.RegisterToolSet(inventoryToolSet);
+                
+                combatToolSet = new CombatToolSet(this, _mapSystem);
+                agentExecutor.RegisterToolSet(combatToolSet);
             }
         }
 
@@ -284,7 +302,7 @@ namespace ChatSystem.Characters
 
             ESTRUCTURA DEL MAPA:
             - Cada celda tiene coordenadas de fila/columna            
-            - Los elementos en las celdas tienen tipos: Item, Character, u Obstacle
+            - Los elementos en las celdas tienen tipos: Item, Character, Obstacle, o DeadBody
             - Cada elemento tiene un ID para referencia         
 
             INVENTARIO ACTUAL:
@@ -299,6 +317,9 @@ namespace ChatSystem.Characters
             - Key: Llaves (solo 1 por slot)
             - Money: Dinero (solo 1 por slot)  
             - Apple: Manzanas (solo 1 por slot)
+
+            HERRAMIENTAS DE COMBATE DISPONIBLES:
+            - attack(targetCharacterId): Atacar a un personaje adyacente (debe estar mirando hacia él)
 
             DATOS ACTUALES DEL MAPA:
             {jsonContent}
@@ -328,6 +349,40 @@ namespace ChatSystem.Characters
             ";
 
             return inventoryPrompt;
+        }
+
+        private PromptConfig CreateCombatPromptConfig()
+        {
+            CombatContext combatContext = combatComponent.GetCombatContext();
+            
+            PromptConfig combatPrompt = ScriptableObject.CreateInstance<PromptConfig>();
+            combatPrompt.promptId = "combat-status";
+            combatPrompt.promptName = "Estado de Combate";
+            combatPrompt.category = "Combate";
+            combatPrompt.description = "Estado de salud y combate del personaje";
+            combatPrompt.enabled = true;
+            combatPrompt.priority = 20;
+            combatPrompt.version = "1.0";
+
+            string attackInfo = combatContext.wasAttackedThisTurn 
+                ? $"ALERTA: Has recibido un ataque de {combatContext.attackerName} por {combatContext.damageReceived} de daño." 
+                : "No has recibido ataques en este turno.";
+
+            combatPrompt.content = $@"ESTADO DE COMBATE:
+
+            SALUD ACTUAL: {combatContext.currentHealth}/{combatContext.maxHealth} HP
+
+            {attackInfo}
+
+            REGLAS DE COMBATE:
+            - Solo puedes atacar a personajes adyacentes (1 celda o menos)
+            - Debes estar mirando hacia el objetivo para atacar
+            - Cada ataque consume 1 punto de acción
+            - Si la salud llega a 0, el personaje muere
+
+            Usa la herramienta attack(targetCharacterId) para atacar a un enemigo cercano.";
+
+            return combatPrompt;
         }
 
         public void Talk(string message)
