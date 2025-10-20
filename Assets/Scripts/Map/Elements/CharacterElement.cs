@@ -2,10 +2,11 @@ using UnityEngine;
 using Grid.Models.Grid;
 using MapSystem.Enums;
 using MapSystem.Models.Vision;
-using MapSystem.Vision;
-using MapSystem.Navigation;
 using InventorySystem.Components;
-using UnityEngine.Serialization;
+using CombatSystem.Components;
+using MapSystem.Navigation;
+using MapSystem.Vision;
+using UnityEngine.UI;
 
 namespace MapSystem.Elements
 {
@@ -13,7 +14,7 @@ namespace MapSystem.Elements
     {
         [Header("Character Properties")]
         [SerializeField] 
-        private float _movementSpeed ;
+        private float _movementSpeed;
         
         [SerializeField] 
         private bool _canMove;
@@ -25,6 +26,9 @@ namespace MapSystem.Elements
         private ViewDirection _facingDirection;
         
         [Header("Character Stats")]
+        [SerializeField] 
+        private Image _lifebarImage ;
+
         [SerializeField] 
         private int _healthPoints = 100;
         
@@ -48,6 +52,7 @@ namespace MapSystem.Elements
         private bool isMoving = false;
         
         private InventoryComponent inventoryComponent;
+        private CombatComponent combatComponent;
 
         protected override void InitializeMapElement()
         {
@@ -59,6 +64,12 @@ namespace MapSystem.Elements
             if (inventoryComponent == null)
             {
                 inventoryComponent = gameObject.AddComponent<InventoryComponent>();
+            }
+            
+            combatComponent = GetComponent<CombatComponent>();
+            if (combatComponent == null)
+            {
+                combatComponent = gameObject.AddComponent<CombatComponent>();
             }
         }
         
@@ -207,6 +218,8 @@ namespace MapSystem.Elements
         {
             int previousHealth = _healthPoints;
             _healthPoints = Mathf.Clamp(_healthPoints + amount, 0, _maxHealthPoints);
+            
+            _lifebarImage.fillAmount = (float)_healthPoints / (float)_maxHealthPoints;
             
             context.SetProperty("healthPoints", _healthPoints);
             

@@ -5,22 +5,35 @@ using ChatSystem.Characters;
 using ChatSystem.Models.Tools;
 using ChatSystem.Services.Logging;
 using ChatSystem.Services.Tools.Interfaces;
-using Grid;
+using ChatSystem.Enums;
+using CombatSystem.Components;
+using CombatSystem.Models;
+using MapSystem;
 using MapSystem.Enums;
+using MapSystem.Elements;
 
-namespace ChatSystem.Services.Tools
+namespace CombatSystem.Services.Tools
 {
-    public class CharacterToolSet : IToolSet
+    public class CombatToolSet : IToolSet
     {
-        public string ToolSetId => "character-toolset";
+        public string ToolSetId => "combat-toolset";
         
         public ToolType ToolSetType => ToolType.Custom;
         
         private readonly CharacterAgent _characterAgent;
+        private readonly CombatComponent _combatComponent;
+        private readonly MapSystem.MapSystem _mapSystem;
         
-        public CharacterToolSet(CharacterAgent characterAgent)
+        public CombatToolSet(CharacterAgent characterAgent, MapSystem.MapSystem mapSystem)
         {
             _characterAgent = characterAgent;
+            _mapSystem = mapSystem;
+            _combatComponent = _characterAgent.GetComponent<CombatComponent>();
+            
+            if (_combatComponent == null)
+            {
+                LoggingService.LogError($"CombatComponent not found on {_characterAgent.name}");
+            }
         }
 
         public async Task<ToolResponse> ExecuteToolAsync(ToolCall toolCall)
@@ -36,9 +49,7 @@ namespace ChatSystem.Services.Tools
             {
                 ToolResponse response = toolCall.name switch
                 {
-                    "move" => await ExecuteAgentMoveAsync(toolCall),
-                    "talk" => await ExecuteAgentTalkAsync(toolCall),
-                    "flip" => await ExecuteAgentFlipAsync(toolCall),
+                    "attack" => await ExecuteAttackAsync(toolCall),
                     _ => CreateErrorResponse(toolCall.id, $"Unknown tool: {toolCall.name}")
                 };
                 
@@ -67,74 +78,60 @@ namespace ChatSystem.Services.Tools
             }
         }
 
-        private async Task<ToolResponse> ExecuteAgentMoveAsync(ToolCall toolCall)
+        private async Task<ToolResponse> ExecuteAttackAsync(ToolCall toolCall)
         {
             await Task.Delay(10);
             
             try
             {
-                Dictionary<string, object> args = toolCall.arguments;
-                int row = (int)args["row"];
-                int col = (int)args["col"];
-
-                int index = GridSystem.CoordToIndex(row, col);
-                
-                if (_characterAgent.Teleport(row, col))
+                if (_combatComponent == null)
                 {
-                    UniversalLogUI.Instance.Log($"{_characterAgent.name} Move to {index}");
-                    return CreateSuccessResponse(toolCall.id, $"Tu posición ahora es: {row},{col}");
+                    return CreateErrorResponse(toolCall.id, "Combat component not available");
+                }
+
+                Dictionary<string, object> args = toolCall.arguments;
+                string targetCharacterId = args["targetCharacterId"].ToString();
+                 
+                MapElement targetElement = _mapSystem.GetElementById(targetCharacterId);
+                if (targetElement == null || targetElement.ElementType != MapElementType.Character)
+                {
+                    return CreateErrorResponse(toolCall.id, $"Character with id {targetCharacterId} not found");
+                }
+
+                CharacterElement targetCharacter = targetElement as CharacterElement;
+                
+                if (targetCharacter == null)
+                {
+                    return CreateErrorResponse(toolCall.id, $"Target {targetCharacterId} is not a character");
+                }
+
+                AttackResult result = _combatComponent.Attack(targetCharacter);
+
+                if (!result.success)
+                {
+                    UniversalLogUI.Instance.Log($"{_characterAgent.name} failed to attack {targetCharacter.name}: {result.errorMessage}");
+                    return CreateErrorResponse(toolCall.id, result.errorMessage);
+                }
+
+                string message = $"Successfully attacked {targetCharacter.name} for {result.damageDealt} damage";
+
+                if (result.targetDied)
+                {
+                    message += $". {targetCharacter.name} has been defeated and is now dead";
+                    UniversalLogUI.Instance.Log($"{_characterAgent.name} defeated {targetCharacter.name}!");
                 }
                 else
                 {
-                    UniversalLogUI.Instance.Log($"{_characterAgent.name} ERROR Move to {index}");
-
-                    return CreateErrorResponse(toolCall.id, $"No puedes moverte a: {row}, {col}");
+                    message += $". {targetCharacter.name} is still alive with {targetCharacter.HealthPoints}/{targetCharacter.MaxHealthPoints} HP remaining";
+                    UniversalLogUI.Instance.Log($"{_characterAgent.name} attacked {targetCharacter.name} for {result.damageDealt} damage");
                 }
+
+                return CreateSuccessResponse(toolCall.id, message);
             }
             catch (Exception ex)
             {
-                return CreateErrorResponse(toolCall.id, $"Ha habido un problema con esta tool: {ex.Message}");
-            }
-        }
-        
-        private async Task<ToolResponse> ExecuteAgentTalkAsync(ToolCall toolCall)
-        {
-            try
-            {
-                Dictionary<string, object> args = toolCall.arguments;
-                string message = args["message"].ToString();
-
-                _characterAgent.Talk(message);
-                
-                await Task.Delay(3000);
-                
-                UniversalLogUI.Instance.Log($"{_characterAgent.name} Talk");
-
-                return CreateSuccessResponse(toolCall.id, $"Has dicho: {message}");
-            }
-            catch (Exception ex)
-            {
-                return CreateErrorResponse(toolCall.id, $"Ha habido un problema con esta tool: {ex.Message}");
-            }
-        }
-        
-        private async Task<ToolResponse> ExecuteAgentFlipAsync(ToolCall toolCall)
-        {
-            await Task.Delay(10);
-            
-            try
-            {
-                Dictionary<string, object> args = toolCall.arguments;
-
-                ViewDirection direction = _characterAgent.Flip();
-                
-                UniversalLogUI.Instance.Log($"{_characterAgent.name} Flip");
-
-                return CreateSuccessResponse(toolCall.id, $"Ahora estás mirando hacia " + direction);
-            }
-            catch (Exception ex)
-            {
-                return CreateErrorResponse(toolCall.id, $"Ha habido un problema con esta tool: {ex.Message}");
+                UniversalLogUI.Instance.Log($"{_characterAgent.name} ERROR during attack");
+                return CreateErrorResponse(toolCall.id, $"Attack execution failed: {ex.Message}");
             }
         }
 
@@ -152,7 +149,7 @@ namespace ChatSystem.Services.Tools
         {
             return toolName switch
             {
-                "move" or "talk" or "flip" => true,
+                "attack" => true,
                 _ => false
             };
         }
