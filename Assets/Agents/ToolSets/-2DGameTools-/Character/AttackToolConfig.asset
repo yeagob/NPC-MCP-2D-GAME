@@ -21,16 +21,16 @@ MonoBehaviour:
     parameters:
       type: object
       properties:
-      - key: targetId
+      - key: targetCharacterId
         value:
           type: string
-          description: 
+          description: The ID of the character to attack
           enumValues: []
           items:
-            type: 
-            description: 
+            type:
+            description:
       required:
-      - targetId
+      - targetCharacterId
   annotations:
     title: 
     readOnlyHint: 0

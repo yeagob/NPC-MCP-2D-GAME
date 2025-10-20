@@ -106,7 +106,7 @@ namespace CombatSystem.Services.Tools
                 }
 
                 AttackResult result = _combatComponent.Attack(targetCharacter);
-                
+
                 if (!result.success)
                 {
                     UniversalLogUI.Instance.Log($"{_characterAgent.name} failed to attack {targetCharacter.name}: {result.errorMessage}");
@@ -114,15 +114,15 @@ namespace CombatSystem.Services.Tools
                 }
 
                 string message = $"Successfully attacked {targetCharacter.name} for {result.damageDealt} damage";
-                
+
                 if (result.targetDied)
                 {
-                    message += $". {targetCharacter.name} has been defeated";
+                    message += $". {targetCharacter.name} has been defeated and is now dead";
                     UniversalLogUI.Instance.Log($"{_characterAgent.name} defeated {targetCharacter.name}!");
                 }
                 else
                 {
-                    message += $". {targetCharacter.name} has {targetCharacter.HealthPoints}/{targetCharacter.MaxHealthPoints} HP remaining";
+                    message += $". {targetCharacter.name} is still alive with {targetCharacter.HealthPoints}/{targetCharacter.MaxHealthPoints} HP remaining";
                     UniversalLogUI.Instance.Log($"{_characterAgent.name} attacked {targetCharacter.name} for {result.damageDealt} damage");
                 }
 

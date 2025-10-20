@@ -152,7 +152,7 @@ namespace ChatSystem.Services.Tools
         {
             return toolName switch
             {
-                "attack" or "move" or "talk" or "flip" => true,
+                "move" or "talk" or "flip" => true,
                 _ => false
             };
         }

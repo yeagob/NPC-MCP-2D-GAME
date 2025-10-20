@@ -149,9 +149,9 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _characters:
+  - {fileID: 1974394610}
   - {fileID: 6984647213550770965}
   - {fileID: 1657247703}
-  - {fileID: 1974394610}
   _turnPanelImage: {fileID: 998998132}
 --- !u!4 &94741122
 Transform:
@@ -4770,11 +4770,11 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 2652386092144676622, guid: 98bf9ccdc18e9a14db5f12c8983577ca, type: 3}
       propertyPath: m_LocalPosition.x
-      value: -1.97
+      value: -1.468
       objectReference: {fileID: 0}
     - target: {fileID: 2652386092144676622, guid: 98bf9ccdc18e9a14db5f12c8983577ca, type: 3}
       propertyPath: m_LocalPosition.y
-      value: 0.28
+      value: 0.336
       objectReference: {fileID: 0}
     - target: {fileID: 2652386092144676622, guid: 98bf9ccdc18e9a14db5f12c8983577ca, type: 3}
       propertyPath: m_LocalPosition.z
@@ -4918,7 +4918,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 8337982968093562386, guid: 98bf9ccdc18e9a14db5f12c8983577ca, type: 3}
       propertyPath: currentGridIndex
-      value: 38
+      value: 39
       objectReference: {fileID: 0}
     - target: {fileID: 8337982968093562386, guid: 98bf9ccdc18e9a14db5f12c8983577ca, type: 3}
       propertyPath: context.elementId
@@ -6795,7 +6795,7 @@ PrefabInstance:
       objectReference: {fileID: 426971792845549064, guid: 5cb33f39ec5f8d84ba1b44a704824c59, type: 3}
     - target: {fileID: 7950579116545635753, guid: 98bf9ccdc18e9a14db5f12c8983577ca, type: 3}
       propertyPath: _actionPoints
-      value: 2
+      value: 5
       objectReference: {fileID: 0}
     - target: {fileID: 7950579116545635753, guid: 98bf9ccdc18e9a14db5f12c8983577ca, type: 3}
       propertyPath: _initialMessage
