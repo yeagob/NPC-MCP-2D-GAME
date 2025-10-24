@@ -1,29 +1,34 @@
 using UnityEngine;
 using InventorySystem.Enums;
 using InventorySystem.Models;
-using MapSystem.Elements;
+using InventorySystem.Configuration;
+using System.Collections.Generic;
 
 namespace InventorySystem.Components
 {
     public class InventoryComponent : MonoBehaviour
     {
+        [Header("Configuration")]
+        [SerializeField]
+        private InventoryConfiguration _configuration;
+
         [Header("Current Items")]
-        [SerializeField] 
+        [SerializeField]
         private InventoryItem _keySlot;
 
-        [SerializeField] 
+        [SerializeField]
         private InventoryItem _moneySlot;
-        
-        [SerializeField] 
+
+        [SerializeField]
         private InventoryItem _appleSlot;
-        
+
         [Header("UI References")]
         [SerializeField]
         private GameObject _appleUI;
-        
+
         [SerializeField]
         private GameObject _moneyUI;
-        
+
         [SerializeField]
         private GameObject _keyUI;
 
@@ -41,28 +46,75 @@ namespace InventorySystem.Components
             return GetSlot(itemType).IsValid();
         }
 
-        public bool AddItem(string itemId, ItemType itemType, ItemElement item)
+        public AddItemResult AddItem(string itemId, ItemType itemType, int quantity = 1)
         {
-            if (HasItem(itemType))
+            if (_configuration == null)
             {
-                return false;
+                return new AddItemResult(false, 0, quantity, "Configuration not set");
             }
 
-            SetSlot(itemType, new InventoryItem(itemId, itemType, item));
-            UpdateUIState(itemType, true);
-            return true;
+            InventoryItem slot = GetSlot(itemType);
+            int maxStack = _configuration.GetMaxStackSize(itemType);
+
+            if (!slot.IsValid())
+            {
+                List<string> ids = new List<string> { itemId };
+                SetSlot(itemType, new InventoryItem(itemType, quantity, ids));
+                UpdateUIState(itemType);
+                return new AddItemResult(true, quantity, 0);
+            }
+
+            if (!slot.CanAddMore(maxStack))
+            {
+                return new AddItemResult(false, 0, quantity, "Stack full");
+            }
+
+            int spaceAvailable = maxStack - slot.quantity;
+            int actualAdded = Mathf.Min(quantity, spaceAvailable);
+            int overflow = quantity - actualAdded;
+
+            slot.quantity += actualAdded;
+            slot.itemIds.Add(itemId);
+            SetSlot(itemType, slot);
+            UpdateUIState(itemType);
+
+            return new AddItemResult(true, actualAdded, overflow);
         }
 
-        public bool RemoveItem(ItemType itemType)
+        public RemoveItemResult RemoveItem(ItemType itemType, int quantity = 1)
         {
-            if (!HasItem(itemType))
+            InventoryItem slot = GetSlot(itemType);
+
+            if (!slot.IsValid())
             {
-                return false;
+                return new RemoveItemResult(false, 0, null);
             }
 
-            SetSlot(itemType, InventoryItem.Empty());
-            UpdateUIState(itemType, false);
-            return true;
+            int actualRemoved = Mathf.Min(quantity, slot.quantity);
+            List<string> removedIds = new List<string>();
+
+            for (int i = 0; i < actualRemoved; i++)
+            {
+                if (slot.itemIds.Count > 0)
+                {
+                    removedIds.Add(slot.itemIds[0]);
+                    slot.itemIds.RemoveAt(0);
+                }
+            }
+
+            slot.quantity -= actualRemoved;
+
+            if (slot.quantity <= 0)
+            {
+                SetSlot(itemType, InventoryItem.Empty());
+            }
+            else
+            {
+                SetSlot(itemType, slot);
+            }
+
+            UpdateUIState(itemType);
+            return new RemoveItemResult(true, actualRemoved, removedIds);
         }
 
         public InventoryItem GetItem(ItemType itemType)
@@ -81,13 +133,22 @@ namespace InventorySystem.Components
 
         public string GetInventoryDescription()
         {
-            System.Collections.Generic.List<string> items = new System.Collections.Generic.List<string>();
+            List<string> items = new List<string>();
 
-            if (_keySlot.IsValid()) items.Add("Key");
-            if (_moneySlot.IsValid()) items.Add("Money");
-            if (_appleSlot.IsValid()) items.Add("Apple");
+            if (_keySlot.IsValid())
+                items.Add($"Key x{_keySlot.quantity}");
+            if (_moneySlot.IsValid())
+                items.Add($"Money x{_moneySlot.quantity}");
+            if (_appleSlot.IsValid())
+                items.Add($"Apple x{_appleSlot.quantity}");
 
             return items.Count == 0 ? "Empty inventory" : string.Join(", ", items);
+        }
+
+        public int GetItemQuantity(ItemType itemType)
+        {
+            InventoryItem slot = GetSlot(itemType);
+            return slot.IsValid() ? slot.quantity : 0;
         }
 
         private InventoryItem GetSlot(ItemType itemType)
@@ -121,21 +182,23 @@ namespace InventorySystem.Components
             }
         }
 
-        private void UpdateUIState(ItemType itemType, bool isActive)
+        private void UpdateUIState(ItemType itemType)
         {
+            InventoryItem slot = GetSlot(itemType);
             GameObject uiObject = GetUIObject(itemType);
-            
+            bool hasItem = slot.IsValid();
+
             if (uiObject != null)
             {
-                uiObject.SetActive(isActive);
+                uiObject.SetActive(hasItem);
             }
         }
 
         private void UpdateAllUIStates()
         {
-            UpdateUIState(ItemType.Key, _keySlot.IsValid());
-            UpdateUIState(ItemType.Money, _moneySlot.IsValid());
-            UpdateUIState(ItemType.Apple, _appleSlot.IsValid());
+            UpdateUIState(ItemType.Key);
+            UpdateUIState(ItemType.Money);
+            UpdateUIState(ItemType.Apple);
         }
 
         private GameObject GetUIObject(ItemType itemType)

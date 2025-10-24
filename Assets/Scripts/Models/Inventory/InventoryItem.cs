@@ -1,31 +1,36 @@
 using System;
+using System.Collections.Generic;
 using InventorySystem.Enums;
-using MapSystem.Elements;
 
 namespace InventorySystem.Models
 {
     [Serializable]
-    public struct InventoryItem
+    public class InventoryItem
     {
-        public string itemId;
-        public ItemElement itemElement;
         public ItemType itemType;
+        public int quantity;
+        public List<string> itemIds;
 
-        public InventoryItem(string itemId, ItemType itemType, ItemElement itemElement)
+        public InventoryItem(ItemType itemType, int quantity, List<string> itemIds)
         {
-            this.itemId = itemId;
             this.itemType = itemType;
-            this.itemElement = itemElement;
+            this.quantity = quantity;
+            this.itemIds = itemIds ?? new List<string>();
         }
 
         public static InventoryItem Empty()
         {
-            return new InventoryItem(string.Empty, ItemType.Key, null);
+            return new InventoryItem(ItemType.Key, 0, new List<string>());
         }
 
         public bool IsValid()
         {
-            return !string.IsNullOrEmpty(itemId);
+            return quantity > 0;
+        }
+
+        public bool CanAddMore(int maxStackSize)
+        {
+            return quantity < maxStackSize;
         }
     }
 }

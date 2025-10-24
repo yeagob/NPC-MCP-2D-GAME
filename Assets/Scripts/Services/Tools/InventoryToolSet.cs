@@ -83,7 +83,7 @@ namespace InventorySystem.Services.Tools
         private async Task<ToolResponse> ExecutePickupItemAsync(ToolCall toolCall)
         {
             await Task.Delay(10);
-            
+
             try
             {
                 if (_inventoryComponent == null)
@@ -93,7 +93,13 @@ namespace InventorySystem.Services.Tools
 
                 Dictionary<string, object> args = toolCall.arguments;
                 string itemId = args["itemId"].ToString();
-                 
+
+                int quantity = 1;
+                if (args.ContainsKey("quantity"))
+                {
+                    quantity = Convert.ToInt32(args["quantity"]);
+                }
+
                 MapElement targetElement = _mapSystem.GetElementById(itemId);
                 if (targetElement == null || targetElement.ElementType != MapElementType.Item)
                 {
@@ -113,32 +119,30 @@ namespace InventorySystem.Services.Tools
                 }
 
                 ItemType itemType = itemElement.ItemType;
-                
-                if (_inventoryComponent.HasItem(itemType))
-                {
-                    return CreateErrorResponse(toolCall.id, $"Already have {itemType} in inventory");
-                }
 
-                bool added = _inventoryComponent.AddItem(itemId, itemType, itemElement);
-                
-                if (added)
+                Models.AddItemResult result = _inventoryComponent.AddItem(itemId, itemType, quantity);
+
+                if (result.success)
                 {
                     _mapSystem.UnregisterElement(targetElement);
                     targetElement.gameObject.SetActive(false);
-                    
-                    UniversalLogUI.Instance.Log($"{_characterAgent.name} Coge  {itemType} (id: {itemId})");
 
-                    return CreateSuccessResponse(toolCall.id, $"Successfully picked up {itemType} (id: {itemId})");
+                    string message = result.overflow > 0
+                        ? $"Picked up {result.quantityAdded} {itemType} (id: {itemId}). {result.overflow} didn't fit."
+                        : $"Picked up {result.quantityAdded} {itemType} (id: {itemId})";
+
+                    UniversalLogUI.Instance.Log($"{_characterAgent.name} {message}");
+
+                    return CreateSuccessResponse(toolCall.id, message);
                 }
 
-                UniversalLogUI.Instance.Log($"{_characterAgent.name} Fallo al coger  {itemType} (id: {itemId})");
-                
-                return CreateErrorResponse(toolCall.id, $"Failed to add {itemType} to inventory");
+                UniversalLogUI.Instance.Log($"{_characterAgent.name} Failed to pick up {itemType} (id: {itemId})");
+
+                return CreateErrorResponse(toolCall.id, result.message);
             }
             catch (Exception ex)
             {
-             
-                UniversalLogUI.Instance.Log($"{_characterAgent.name} ERROR al coger ");
+                UniversalLogUI.Instance.Log($"{_characterAgent.name} ERROR picking up item");
                 return CreateErrorResponse(toolCall.id, $"Ha habido un problema con esta tool: {ex.Message}");
             }
         }
