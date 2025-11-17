@@ -8,6 +8,7 @@ using ChatSystem.Services.Tools.Interfaces;
 using ChatSystem.Enums;
 using InventorySystem.Components;
 using InventorySystem.Enums;
+using InventorySystem.Models;
 using MapSystem;
 using MapSystem.Enums;
 using MapSystem.Elements;
@@ -125,20 +126,19 @@ namespace InventorySystem.Services.Tools
                 {
                     _mapSystem.UnregisterElement(targetElement);
                     targetElement.gameObject.SetActive(false);
-                    
-                    UniversalLogUI.Instance.Log($"{_characterAgent.name} Coge  {itemType} (id: {itemId})");
+
+                    UniversalLogUI.Instance.Log($"{_characterAgent.name} recogió {itemType} (id: {itemId})");
 
                     return CreateSuccessResponse(toolCall.id, $"Successfully picked up {itemType} (id: {itemId})");
                 }
 
-                UniversalLogUI.Instance.Log($"{_characterAgent.name} Fallo al coger  {itemType} (id: {itemId})");
-                
+                UniversalLogUI.Instance.Log($"{_characterAgent.name} falló al recoger {itemType} (id: {itemId})");
+
                 return CreateErrorResponse(toolCall.id, $"Failed to add {itemType} to inventory");
             }
             catch (Exception ex)
             {
-             
-                UniversalLogUI.Instance.Log($"{_characterAgent.name} ERROR al coger ");
+                UniversalLogUI.Instance.Log($"{_characterAgent.name} ERROR al recoger item");
                 return CreateErrorResponse(toolCall.id, $"Ha habido un problema con esta tool: {ex.Message}");
             }
         }
@@ -232,7 +232,7 @@ namespace InventorySystem.Services.Tools
                     return CreateErrorResponse(toolCall.id, $"Target character already has {itemType}");
                 }
 
-                Models.InventoryItem item = _inventoryComponent.GetItem(itemType);
+                InventoryItem item = _inventoryComponent.GetItem(itemType);
                 bool removed = _inventoryComponent.RemoveItem(itemType);
                 bool added = targetInventory.AddItem(item.itemId, itemType, item.itemElement);
                 

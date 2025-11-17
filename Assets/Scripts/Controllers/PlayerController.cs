@@ -7,6 +7,7 @@ using Grid;
 using Grid.Models.Grid;
 using InventorySystem.Components;
 using InventorySystem.Enums;
+using InventorySystem.Models;
 using MapSystem;
 using MapSystem.Elements;
 using MapSystem.Models.Map;
@@ -257,7 +258,7 @@ public class PlayerController : TurnCharacter
             return;
         }
 
-        InventorySystem.Models.InventoryItem item = _inventoryComponent.GetItem(itemType);
+        InventoryItem item = _inventoryComponent.GetItem(itemType);
         bool removed = _inventoryComponent.RemoveItem(itemType);
 
         if (!removed)
@@ -518,7 +519,7 @@ public class PlayerController : TurnCharacter
             return;
         }
 
-        InventorySystem.Models.InventoryItem item = _inventoryComponent.GetItem(_selectedItemTypeForGive);
+        InventoryItem item = _inventoryComponent.GetItem(_selectedItemTypeForGive);
         bool removed = _inventoryComponent.RemoveItem(_selectedItemTypeForGive);
 
         if (!removed)
