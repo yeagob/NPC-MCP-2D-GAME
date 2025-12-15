@@ -1,0 +1,173 @@
+{
+  "$schema": "https://modelcontextprotocol.io/schemas/2025-03-26/tool-schema.json",
+  "tools": [
+    {
+      "name": "get_unity_errors",
+      "description": "Retrieves Unity console error logs with optional filtering by severity, count limit, and time range. Returns error messages, stack traces, and timestamps.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "severity": {
+            "type": "string",
+            "enum": ["error", "warning", "exception", "assert", "all"],
+            "description": "Filter logs by severity level. Use 'all' to retrieve all types.",
+            "default": "all"
+          },
+          "limit": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 1000,
+            "description": "Maximum number of log entries to return, ordered by most recent first.",
+            "default": 100
+          },
+          "since": {
+            "type": "string",
+            "format": "date-time",
+            "description": "ISO 8601 UTC timestamp. Only return logs that occurred after this time. Omit to get all logs."
+          }
+        },
+        "required": []
+      },
+      "examples": [
+        {
+          "arguments": {
+            "severity": "error",
+            "limit": 50
+          },
+          "description": "Get the 50 most recent errors"
+        },
+        {
+          "arguments": {
+            "severity": "all",
+            "limit": 10,
+            "since": "2025-10-30T14:30:00Z"
+          },
+          "description": "Get up to 10 logs of any severity since 2:30 PM UTC"
+        },
+        {
+          "arguments": {},
+          "description": "Get the default 100 most recent logs of all types"
+        }
+      ]
+    },
+    {
+      "name": "clear_error_log",
+      "description": "Clears all buffered error logs from memory. This action cannot be undone. Use when starting a fresh debugging session or when buffer is full.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "confirm": {
+            "type": "boolean",
+            "description": "Must be set to true to confirm clearing all logs. Prevents accidental data loss.",
+            "const": true
+          }
+        },
+        "required": ["confirm"]
+      },
+      "examples": [
+        {
+          "arguments": {
+            "confirm": true
+          },
+          "description": "Clear all error logs from buffer"
+        }
+      ]
+    },
+    {
+      "name": "get_server_status",
+      "description": "Retrieves the current MCP server operational status, including buffer statistics, active sessions, and configuration details. Useful for diagnosing connectivity issues.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {},
+        "required": []
+      },
+      "responseSchema": {
+        "type": "object",
+        "properties": {
+          "status": {
+            "type": "string",
+            "enum": ["stopped", "starting", "running", "error", "stopping"],
+            "description": "Current server operational state"
+          },
+          "port": {
+            "type": "integer",
+            "description": "HTTP server port number"
+          },
+          "activeSessions": {
+            "type": "integer",
+            "description": "Number of currently connected MCP clients"
+          },
+          "bufferSize": {
+            "type": "integer",
+            "description": "Current number of errors in buffer"
+          },
+          "totalErrorsCaptured": {
+            "type": "integer",
+            "description": "Lifetime count of errors captured since server start"
+          },
+          "lastErrorTimestamp": {
+            "type": "string",
+            "format": "date-time",
+            "description": "ISO 8601 timestamp of the most recent error, or null if no errors"
+          },
+          "isCapturing": {
+            "type": "boolean",
+            "description": "Whether the server is actively capturing new errors"
+          }
+        }
+      },
+      "examples": [
+        {
+          "arguments": {},
+          "description": "Get current server status and diagnostics"
+        }
+      ]
+    },
+    {
+      "name": "subscribe_error_notifications",
+      "description": "[PRIORITY 3] Subscribe to real-time error notifications via server-sent events (SSE). When new errors occur in Unity, the server will push notifications to the client. Requires MCP client to support SSE.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "severityFilter": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "enum": ["error", "warning", "exception", "assert"]
+            },
+            "description": "Array of severity levels to receive notifications for. Empty array means all severities.",
+            "default": []
+          }
+        },
+        "required": []
+      },
+      "examples": [
+        {
+          "arguments": {
+            "severityFilter": ["error", "exception"]
+          },
+          "description": "Subscribe to notifications for errors and exceptions only"
+        },
+        {
+          "arguments": {},
+          "description": "Subscribe to notifications for all error types"
+        }
+      ]
+    },
+    {
+      "name": "unsubscribe_error_notifications",
+      "description": "[PRIORITY 3] Unsubscribe from real-time error notifications. Stops the server from sending push notifications to this client session.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {},
+        "required": []
+      },
+      "examples": [
+        {
+          "arguments": {},
+          "description": "Stop receiving error notifications"
+        }
+      ]
+    }
+  ]
+}
