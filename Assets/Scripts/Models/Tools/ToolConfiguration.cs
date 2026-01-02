@@ -128,6 +128,91 @@ namespace ChatSystem.Models.Tools
         {
             return ToOpenAIFormat();
         }
+
+        public string ToFunctionGemmaFormat()
+        {
+             // FunctionGemma uses <start_function_declaration>...<end_function_declaration>
+             // Inside is typically the JSON of the function definition.
+             // We can reuse the JSON part from OpenAI format but wrapping it in the specific XML tags is handled here or by the service.
+             // Based on research, the Model takes the definitions.
+             // However, to keep it clean, let's return the JSON structure that goes INSIDE the tags,
+             // or the full block. Let's return the JSON structure tailored for it, 
+             // but actually FunctionGemma often digests the JSON schema directly.
+             // Let's assume for now it consumes the same JSON structure as OpenAI for the internal definition,
+             // but we will wrap it in the Service to allow batching if needed, OR we do it here.
+             // Let's do it here for a single tool.
+             
+             StringBuilder sb = new StringBuilder();
+             sb.Append("<start_function_declaration>");
+             sb.Append("type=function"); // Sometimes omitted or implicit, but let's stick to the JSON payload.
+             // Actually, FunctionGemma typically expects just the JSON object of the function.
+             
+             // Let's reconstruct the simple JSON object without the "type": "function" wrapper if possible,
+             // or just use the OpenAI inner "function" object.
+             
+             sb.Append(ToOpenAIInnerFunctionFormat()); 
+             sb.Append("<end_function_declaration>");
+             return sb.ToString();
+        }
+        
+        private string ToOpenAIInnerFunctionFormat()
+        {
+            // Helper to get just the { "name": ..., "description": ..., "parameters": ... } part
+            StringBuilder sb = new StringBuilder();
+            sb.Append("{");
+            sb.Append($"\"name\":\"{toolName}\",");
+            sb.Append($"\"description\":\"{EscapeJsonString(description)}\",");
+            sb.Append("\"parameters\":{");
+            sb.Append("\"type\":\"object\"");
+            
+            if (_inputSchema?.properties != null && _inputSchema.properties.Count > 0)
+            {
+                sb.Append(",\"properties\":{");
+                bool first = true;
+                foreach (var prop in _inputSchema.properties)
+                {
+                    if (!first) sb.Append(",");
+                    sb.Append($"\"{prop.Key}\":{{");
+                    sb.Append($"\"type\":\"{prop.Value.type}\"");
+                     if (!string.IsNullOrEmpty(prop.Value.description))
+                    {
+                        sb.Append($",\"description\":\"{EscapeJsonString(prop.Value.description)}\"");
+                    }
+                    if (prop.Value.enumValues != null && prop.Value.enumValues.Count > 0)
+                    {
+                        sb.Append(",\"enum\":[");
+                        for (int i = 0; i < prop.Value.enumValues.Count; i++)
+                        {
+                            if (i > 0) sb.Append(",");
+                            sb.Append($"\"{EscapeJsonString(prop.Value.enumValues[i])}\"");
+                        }
+                        sb.Append("]");
+                    }
+                    sb.Append("}");
+                    first = false;
+                }
+                sb.Append("}");
+            }
+            else
+            {
+                sb.Append(",\"properties\":{}");
+            }
+
+            if (_inputSchema?.required != null && _inputSchema.required.Count > 0)
+            {
+                sb.Append(",\"required\":[");
+                for (int i = 0; i < _inputSchema.required.Count; i++)
+                {
+                    if (i > 0) sb.Append(",");
+                    sb.Append($"\"{_inputSchema.required[i]}\"");
+                }
+                sb.Append("]");
+            }
+            
+            sb.Append("}"); // End parameters
+            sb.Append("}"); // End function object
+            return sb.ToString();
+        }
         
         private Dictionary<string, ParameterSchema> ConvertToParameterSchemas(
             List<SerializableProperty> properties)

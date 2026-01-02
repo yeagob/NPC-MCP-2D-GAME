@@ -182,6 +182,12 @@ namespace ChatSystem.Services.Agents
                         request, 
                         agentConfig.token, 
                         agentConfig.serviceUrl);
+
+                case ServiceProvider.FunctionGemma:
+                    return await FunctionGemmaService.CompleteChatAsync(
+                        request,
+                        agentConfig.token,
+                        agentConfig.serviceUrl);
                 
                 default:
                     LoggingService.LogWarning($"Unsupported provider: {request.provider}. Using fallback simulation.");

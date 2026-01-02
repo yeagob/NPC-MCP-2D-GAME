@@ -8,6 +8,7 @@ namespace ChatSystem.Enums
         OpenAI,
         QWEN,
         Claude,
-        Custom
+        Custom,
+        FunctionGemma
     }
 }
