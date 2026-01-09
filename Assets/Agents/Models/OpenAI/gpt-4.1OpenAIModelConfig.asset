@@ -10,15 +10,15 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 1f39ca0673d533645be39d99e7636e96, type: 3}
-  m_Name: LocalModel
+  m_Name: gpt-4.1OpenAIModelConfig
   m_EditorClassIdentifier: 
-  modelName: p-e-w_qwen3-4b-instruct-2507-heretic
+  modelName: gpt-4.1
   provider: 0
-  modelVersion: 0.1
-  temperature: 0.41
+  modelVersion: gpt-4.1
+  temperature: 0.5
   maxTokens: 2048
-  topP: 0.9
+  topP: 0.2
   presencePenalty: 0
   frequencyPenalty: 0
-  costPerInputToken: 0
-  costPerOutputToken: 0
+  costPerInputToken: 2
+  costPerOutputToken: 8

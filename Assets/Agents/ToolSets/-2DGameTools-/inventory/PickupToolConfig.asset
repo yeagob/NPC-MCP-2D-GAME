@@ -17,7 +17,8 @@ MonoBehaviour:
   toolType: 3
   function:
     name: pickup_item
-    description: "Recogemos un objeto del suelo, dado su id, si est\xE1 cerca"
+    description: We pick up an object from the ground, given its ID, if it is in
+      the same cell.
     parameters:
       type: object
       properties:

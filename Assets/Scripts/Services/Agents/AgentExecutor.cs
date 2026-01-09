@@ -45,6 +45,8 @@ namespace ChatSystem.Services.Agents
             
             try
             {
+                UniversalLogUI.Instance.Log($"[MODEL:{agentConfig.modelConfig.modelName}");
+                
                 LLMRequest request = BuildLLMRequest(agentConfig, context);
                 LLMResponse llmResponse = await ExecuteLLMCallAsync(request, agentConfig);
                 

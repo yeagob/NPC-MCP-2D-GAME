@@ -17,8 +17,8 @@ MonoBehaviour:
   toolType: 3
   function:
     name: flip
-    description: "El personaje se da la vuelta lo que le permite ver cosas que ten\xEDa
-      a su espalda y no pod\xEDa ver."
+    description: The character turns around, allowing him to see things that were
+      behind him and he couldn't see before.
     parameters:
       type: object
       properties: []

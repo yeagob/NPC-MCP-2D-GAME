@@ -17,8 +17,7 @@ MonoBehaviour:
   toolType: 3
   function:
     name: talk
-    description: "Expresa en voz alta palabras, que ser\xE1n escuchadas por los personajes
-      cercanos."
+    description: Say words aloud, which will be heard by nearby characters.
     parameters:
       type: object
       properties:

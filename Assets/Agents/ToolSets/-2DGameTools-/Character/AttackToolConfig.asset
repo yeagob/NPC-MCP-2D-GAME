@@ -17,7 +17,7 @@ MonoBehaviour:
   toolType: 3
   function:
     name: attack
-    description: Ejecuta un ataque al elemento objetivo.
+    description: Perform an attack on the target element.
     parameters:
       type: object
       properties:

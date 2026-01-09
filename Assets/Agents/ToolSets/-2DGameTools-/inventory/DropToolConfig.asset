@@ -17,7 +17,7 @@ MonoBehaviour:
   toolType: 3
   function:
     name: drop_item
-    description: Dejamos caer un objeto de nuestro inventario al suelo.
+    description: We drop an item from our inventory onto the ground.
     parameters:
       type: object
       properties:

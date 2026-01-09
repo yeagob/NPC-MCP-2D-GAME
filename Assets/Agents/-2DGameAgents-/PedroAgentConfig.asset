@@ -15,8 +15,8 @@ MonoBehaviour:
   agentId: Pedro
   agentName: Pedro
   description: Predro NPC
-  providerConfig: {fileID: 11400000, guid: e33a4442381653e4f97c559e6838f583, type: 2}
-  modelConfig: {fileID: 11400000, guid: 61571a4a629a89447bedca28c6485b81, type: 2}
+  providerConfig: {fileID: 11400000, guid: aa8ef07821d96dd469f4dfa6e7b49c3b, type: 2}
+  modelConfig: {fileID: 11400000, guid: b888993ff2fdc1f4d869466fa1b5546d, type: 2}
   systemPrompt: {fileID: 11400000, guid: cd5ebd70a1087b24a84e27c701bcc40f, type: 2}
   contextPrompts:
   - {fileID: 11400000, guid: 4f9a5ec1f0764b94eb3e6c3df40a14d0, type: 2}

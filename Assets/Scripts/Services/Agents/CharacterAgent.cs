@@ -269,42 +269,42 @@ namespace ChatSystem.Characters
 
             PromptConfig promptConfig = ScriptableObject.CreateInstance<PromptConfig>();
             promptConfig.promptId = "map-system-data";
-            promptConfig.promptName = "Estado Actual del Mapa";
-            promptConfig.category = "Sistema del Mapa";
-            promptConfig.description = "Estado actual del mapa con todas las celdas y elementos";
+            promptConfig.promptName = "Current Map State";
+            promptConfig.category = "Map System";
+            promptConfig.description = "Current state of the map including all cells and elements";
             promptConfig.enabled = true;
             promptConfig.priority = 10;
             promptConfig.version = "1.0";
 
-            promptConfig.content = $@"DATOS DEL SISTEMA DEL MAPA
+            promptConfig.content = $@"MAP SYSTEM DATA
 
-            El mapa está representado como una cuadrícula de celdas, donde cada celda puede contener uno o más elementos.
+            The map is represented as a grid of cells, where each cell can contain one or more elements.
 
-            Se trata de un tablero de: {_mapSystem.GridSystem.GetGridConfiguration().gridWidth}x{_mapSystem.GridSystem.GetGridConfiguration().gridHeight}
+            This is a board of: {_mapSystem.GridSystem.GetGridConfiguration().gridWidth}x{_mapSystem.GridSystem.GetGridConfiguration().gridHeight}
 
-            ESTRUCTURA DEL MAPA:
-            - Cada celda tiene coordenadas de fila/columna            
-            - Los elementos en las celdas tienen tipos: Item, Character, u Obstacle
-            - Cada elemento tiene un ID para referencia         
+            MAP STRUCTURE:
+            - Each cell has row/column coordinates            
+            - Elements within cells have types: Item, Character, or Obstacle
+            - Each element has an ID for reference         
 
-            INVENTARIO ACTUAL:
+            CURRENT INVENTORY:
             {currentInventoryDesc}
 
-            HERRAMIENTAS DE INVENTARIO DISPONIBLES:
-            - pickup_item(itemId): Recoger un objeto del mapa por su ID
-            - drop_item(itemType): Soltar un objeto del inventario 
-            - give_item(targetCharacterId, itemType): Dar un objeto a otro personaje
+            AVAILABLE INVENTORY TOOLS:
+            - pickup_item(itemId): Pick up an item from the map by its ID
+            - drop_item(itemType): Drop an item from the inventory 
+            - give_item(targetCharacterId, itemType): Give an item to another character
 
-            TIPOS DE OBJETOS:
-            - Key: Llaves (solo 1 por slot)
-            - Money: Dinero (solo 1 por slot)  
-            - Apple: Manzanas (solo 1 por slot)
+            ITEM TYPES:
+            - Key: Keys (only 1 per slot)
+            - Money: Money (only 1 per slot)  
+            - Apple: Apples (only 1 per slot)
 
-            DATOS ACTUALES DEL MAPA:
+            CURRENT MAP DATA:
             {jsonContent}
 
-            Usa estos datos del mapa para entender las relaciones espaciales, planificar movimientos e interactuar con los elementos por sus IDs.";
-
+            Use this map data to understand spatial relationships, plan movements, and interact with elements by their IDs.";
+            
             return promptConfig;
         }
 

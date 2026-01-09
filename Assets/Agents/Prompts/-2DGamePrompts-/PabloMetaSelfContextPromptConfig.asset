@@ -14,8 +14,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   promptId: 2
   promptName: PabloSystem
-  content: 'Me llamo Pablo y tengo una espada. Amo una buena conversacion, pero tengo
-    muy mala ostia con la gente pesada. Me gusta el dinero. '
+  content: 'My name is Pablo and I have a sword. I love a good conversation, but
+    I have a very bad temper with annoying people. I like money. '
   enabled: 1
   priority: 0
   category: 

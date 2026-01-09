@@ -17,7 +17,7 @@ MonoBehaviour:
   toolType: 3
   function:
     name: move
-    description: Permite moverser instantaneamente a la casilla destino.
+    description: Allows you to instantly move to the destination square.
     parameters:
       type: object
       properties:

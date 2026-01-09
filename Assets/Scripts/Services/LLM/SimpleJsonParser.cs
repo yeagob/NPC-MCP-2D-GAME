@@ -137,6 +137,7 @@ namespace ChatSystem.Services.LLM
                 return keyStr.Substring(1, keyStr.Length - 2);
             }
             
+            // Support unquoted keys (alphanumeric + underscore/dash usually)
             return keyStr;
         }
         

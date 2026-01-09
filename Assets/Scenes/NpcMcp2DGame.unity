@@ -149,9 +149,9 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _characters:
-  - {fileID: 6984647213550770965}
-  - {fileID: 1657247703}
   - {fileID: 1974394610}
+  - {fileID: 1657247703}
+  - {fileID: 6984647213550770965}
   _turnPanelImage: {fileID: 998998132}
 --- !u!4 &94741122
 Transform:
@@ -4485,7 +4485,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 7950579116545635753, guid: 98bf9ccdc18e9a14db5f12c8983577ca, type: 3}
       propertyPath: _initialMessage
-      value: Actua con libertad
+      value: Let's act!
       objectReference: {fileID: 0}
     - target: {fileID: 7950579116545635753, guid: 98bf9ccdc18e9a14db5f12c8983577ca, type: 3}
       propertyPath: _characterElement
@@ -6378,7 +6378,7 @@ PrefabInstance:
       objectReference: {fileID: -2322300061363258381, guid: 85394ddedfd8b6c4e97930dee16e476a, type: 3}
     - target: {fileID: 6925307151508611582, guid: 98bf9ccdc18e9a14db5f12c8983577ca, type: 3}
       propertyPath: m_IsActive
-      value: 1
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 7950579116545635753, guid: 98bf9ccdc18e9a14db5f12c8983577ca, type: 3}
       propertyPath: mapSystem
@@ -6398,7 +6398,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 7950579116545635753, guid: 98bf9ccdc18e9a14db5f12c8983577ca, type: 3}
       propertyPath: _initialMessage
-      value: Actua con libertad
+      value: Let's act!
       objectReference: {fileID: 0}
     - target: {fileID: 7950579116545635753, guid: 98bf9ccdc18e9a14db5f12c8983577ca, type: 3}
       propertyPath: _characterElement

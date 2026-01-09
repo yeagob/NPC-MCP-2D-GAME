@@ -17,7 +17,7 @@ MonoBehaviour:
   toolType: 3
   function:
     name: give_item
-    description: Damos un objeto a otro personaje.
+    description: We give an object to another character.
     parameters:
       type: object
       properties:
